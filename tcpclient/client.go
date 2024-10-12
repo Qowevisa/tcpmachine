@@ -53,7 +53,21 @@ func CreateClient(addr string, options ...ClientOption) *Client {
 	}
 }
 
+var (
+	ERROR_CLIENT_ERRRSL_NIL = errors.New("Error Resolver is nil")
+	ERROR_CLIENT_ERRCHL_NIL = errors.New("Error Channel is nil")
+)
+
 func (c *Client) StartClient() error {
+	if c.Status&statusBitCustomErrorHandling == 0 {
+		if c.ErrorResolver == nil {
+			return fmt.Errorf("Can't start client: %w", ERROR_CLIENT_ERRRSL_NIL)
+		}
+		if c.ErrorResolver == nil {
+			return fmt.Errorf("Can't start client: %w", ERROR_CLIENT_ERRCHL_NIL)
+		}
+		go c.ErrorResolver(c.ErrorsChannel)
+	}
 	server, err := net.Dial("tcp", c.addr)
 	if err != nil {
 		return fmt.Errorf("net.Dial: %w", err)
