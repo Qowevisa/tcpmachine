@@ -1,14 +1,14 @@
 package main
 
 import (
+	"fmt"
 	"time"
 
 	"git.qowevisa.me/Qowevisa/tcpmachine/tcpclient"
 )
 
 func main() {
-	conf := tcpclient.GetDefaultConfig()
-	client := tcpclient.CreateClient(conf)
+	client := tcpclient.CreateClient("127.0.0.1:10000")
 	go func() {
 		for {
 			if client.IsConnected {
@@ -21,6 +21,8 @@ func main() {
 			time.Sleep(time.Second)
 		}
 	}()
-	go client.ErrorResolver(client.ErrorsChannel)
-	client.StartClient("127.0.0.1:10000")
+	err := client.StartClient()
+	if err != nil {
+		fmt.Printf("ERROR: StartClient: %v\n", err)
+	}
 }

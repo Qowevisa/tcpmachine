@@ -23,6 +23,7 @@ func GetDefaultConfig() ClientConfiguration {
 }
 
 type Client struct {
+	addr        string
 	exit        chan bool
 	Server      net.Conn
 	IsConnected bool
@@ -32,8 +33,15 @@ type Client struct {
 	ErrorResolver func(chan error)
 }
 
-func CreateClient(conf ClientConfiguration) *Client {
+func CreateClient(addr string, options ...ClientOption) *Client {
+	conf := GetDefaultConfig()
+
+	for _, opt := range options {
+		opt(conf)
+	}
+
 	return &Client{
+		addr:          addr,
 		Messages:      make(chan []byte, 16),
 		ErrorResolver: conf.ErrorResolver,
 		ErrorsChannel: make(chan error, 8),
@@ -41,8 +49,8 @@ func CreateClient(conf ClientConfiguration) *Client {
 	}
 }
 
-func (c *Client) StartClient(addr string) error {
-	server, err := net.Dial("tcp", addr)
+func (c *Client) StartClient() error {
+	server, err := net.Dial("tcp", c.addr)
 	if err != nil {
 		return fmt.Errorf("net.Dial: %w", err)
 	}
