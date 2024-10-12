@@ -12,8 +12,8 @@ type ClientConfiguration struct {
 	ErrorResolver func(chan error)
 }
 
-func GetDefaultConfig() ClientConfiguration {
-	return ClientConfiguration{
+func GetDefaultConfig() *ClientConfiguration {
+	return &ClientConfiguration{
 		ErrorResolver: func(c chan error) {
 			for err := range c {
 				fmt.Printf("DefConfig:Error: %v\n", err)
