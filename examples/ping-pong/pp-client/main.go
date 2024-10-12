@@ -19,6 +19,7 @@ func main() {
 		for i := 0; i < 10; i++ {
 			client.Server.Write([]byte("PING\n"))
 			time.Sleep(time.Second)
+			client.ErrorsChannel <- fmt.Errorf("test err")
 		}
 	}()
 	err := client.StartClient()
