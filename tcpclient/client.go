@@ -9,6 +9,7 @@ import (
 )
 
 type ClientConfiguration struct {
+	Status        uint32
 	ErrorResolver func(chan error)
 }
 
@@ -26,6 +27,7 @@ type ErrorResolverFunc func(errors chan error)
 
 type Client struct {
 	addr        string
+	Status      uint32
 	exit        chan bool
 	Server      net.Conn
 	IsConnected bool
