@@ -22,6 +22,8 @@ func GetDefaultConfig() *ClientConfiguration {
 	}
 }
 
+type ErrorResolverFunc func(errors chan error)
+
 type Client struct {
 	addr        string
 	exit        chan bool
@@ -30,7 +32,7 @@ type Client struct {
 	//
 	Messages      chan []byte
 	ErrorsChannel chan error
-	ErrorResolver func(chan error)
+	ErrorResolver ErrorResolverFunc
 }
 
 func CreateClient(addr string, options ...ClientOption) *Client {
