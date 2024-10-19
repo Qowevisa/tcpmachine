@@ -2,7 +2,7 @@ package tcpserver
 
 import "net"
 
-type ServerOption func(*ServerConfiguration)
+type ServerOption func(conf *ServerConfiguration)
 
 // WithMessageEndRune sets the MessageEndRune in the server configuration.
 func WithMessageEndRune(r rune) ServerOption {
@@ -29,5 +29,11 @@ func WithErrorResolver(resolver func(chan error)) ServerOption {
 func WithHandleClientFunc(handler func(client net.Conn)) ServerOption {
 	return func(conf *ServerConfiguration) {
 		conf.HandleClientFunc = handler
+	}
+}
+
+func WithLoggingLevel(level ServerLoggingLevel) ServerOption {
+	return func(conf *ServerConfiguration) {
+		conf.LogLevel = level
 	}
 }

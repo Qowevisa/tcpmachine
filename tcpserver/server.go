@@ -12,10 +12,23 @@ import (
 	"git.qowevisa.me/Qowevisa/tcpmachine/tcpcommand"
 )
 
+type ServerLoggingLevel int
+
+const (
+	LogLevel_Nothing    = 0
+	LogLevel_Connection = 1 << iota
+	LogLevel_Messages
+)
+
+const (
+	LogLevel_ALL = LogLevel_Connection | LogLevel_Messages
+)
+
 type ServerConfiguration struct {
 	MessageEndRune   rune
 	MessageSplitRune rune
 	HandleClientFunc func(client net.Conn)
+	LogLevel         ServerLoggingLevel
 	//
 	ErrorResolver func(chan error)
 }
@@ -54,6 +67,7 @@ type Server struct {
 	MessageSplitRune rune
 	ErrorsChannel    chan error
 	ErrorResolver    func(chan error)
+	LogLevel         ServerLoggingLevel
 	//
 	Commands []tcpcommand.Command
 }
@@ -73,6 +87,9 @@ func defaultHandleClientFunc(server *Server) func(net.Conn) {
 			msgWoNl := strings.Trim(msg, string(server.MessageEndRune))
 			parts := strings.Split(msgWoNl, string(server.MessageSplitRune))
 			commandFound := false
+			if server.LogLevel&LogLevel_Messages > 0 {
+				log.Printf("Message received from %s : %s\n", client.RemoteAddr(), msgWoNl)
+			}
 			for _, cmd := range server.Commands {
 				if cmd.Command == parts[0] {
 					cmd.Action(parts[1:], client)
@@ -87,7 +104,7 @@ func defaultHandleClientFunc(server *Server) func(net.Conn) {
 	}
 }
 
-// HandleClientFunc is NOT created by this function
+// NOTE: HandleClientFunc is NOT created by this function
 // see: CreateHandleClientFuncFromCommands(bundle)
 func GetDefaultConfig() ServerConfiguration {
 	return ServerConfiguration{
@@ -118,6 +135,7 @@ func CreateServer(addr string, options ...ServerOption) *Server {
 		MessageSplitRune: conf.MessageSplitRune,
 		ErrorsChannel:    make(chan error, 8),
 		ErrorResolver:    conf.ErrorResolver,
+		LogLevel:         conf.LogLevel,
 		//
 		Commands: cmds,
 	}
@@ -163,6 +181,9 @@ loop:
 				s.ErrorsChannel <- fmt.Errorf("listener.Accept: %w", err)
 				break
 			}
+			if s.LogLevel&LogLevel_Connection > 0 {
+				fmt.Printf("New Connection from %s is accepted\n", newCLient.RemoteAddr())
+			}
 			go s.HandleClientFunc(newCLient)
 		}
 	}
@@ -172,6 +193,12 @@ loop:
 var commandDuplicateError = errors.New("Command already exists in server")
 var commandNotHandledError = errors.New("Command was not handled")
 
+// On registers an action for a specific command. The action will be executed
+// when the command is received from a client. For example, given the input
+// string `TEST 1 2 3 4`, the command would be `TEST`, and the args would be
+// []string{"1", "2", "3", "4"}.
+//
+// NOTE: This behavior applies only if `MessageSplitRune` is set to the default value (' ').
 func (s *Server) On(command string, action func(args []string, client net.Conn)) error {
 	for _, cmd := range s.Commands {
 		if cmd.Command == command {
