@@ -176,15 +176,15 @@ loop:
 		case <-s.Exit:
 			break loop
 		default:
-			newCLient, err := listener.Accept()
+			newClient, err := listener.Accept()
 			if err != nil {
 				s.ErrorsChannel <- fmt.Errorf("listener.Accept: %w", err)
 				break
 			}
 			if s.LogLevel&LogLevel_Connection > 0 {
-				fmt.Printf("New Connection from %s is accepted\n", newCLient.RemoteAddr())
+				fmt.Printf("New Connection from %s is accepted\n", newClient.RemoteAddr())
 			}
-			go s.HandleClientFunc(newCLient)
+			go s.HandleClientFunc(newClient)
 		}
 	}
 	return nil
