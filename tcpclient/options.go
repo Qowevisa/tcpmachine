@@ -1,5 +1,7 @@
 package tcpclient
 
+import "net"
+
 type ClientOption func(conf *ClientConfiguration)
 
 const (
@@ -11,5 +13,11 @@ func WithCustomErrorHandling(fun ErrorResolverFunc) ClientOption {
 	return func(conf *ClientConfiguration) {
 		conf.Status |= statusBitCustomErrorHandling
 		conf.ErrorResolver = fun
+	}
+}
+
+func WithServerHandler(fun func(server net.Conn)) ClientOption {
+	return func(conf *ClientConfiguration) {
+		conf.ServerHandlerFunc = fun
 	}
 }
