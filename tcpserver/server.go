@@ -59,9 +59,13 @@ func CreateHandleClientFuncFromCommands(bundle *tcpcommand.CommandBundle, conf S
 }
 
 type Server struct {
-	addr             string
-	HandleClientFunc func(client net.Conn)
-	Exit             chan bool
+	addr                 string
+	PreHandlerClientFunc func(client net.Conn)
+	HandleClientFunc     func(client net.Conn)
+	// Use PostHandlerClientFunc in your HandleClientFunc if you
+	// use custom HandleClientFunc
+	PostHandlerClientFunc func(client net.Conn)
+	Exit                  chan bool
 	//
 	MessageEndRune   rune
 	MessageSplitRune rune
@@ -74,6 +78,9 @@ type Server struct {
 
 func defaultHandleClientFunc(server *Server) func(net.Conn) {
 	return func(client net.Conn) {
+		if server.PostHandlerClientFunc != nil {
+			defer server.PostHandlerClientFunc(client)
+		}
 		defer client.Close()
 		connReader := bufio.NewReader(client)
 		for {
@@ -183,6 +190,9 @@ loop:
 			}
 			if s.LogLevel&LogLevel_Connection > 0 {
 				fmt.Printf("New Connection from %s is accepted\n", newClient.RemoteAddr())
+			}
+			if s.PreHandlerClientFunc != nil {
+				s.PreHandlerClientFunc(newClient)
 			}
 			go s.HandleClientFunc(newClient)
 		}
