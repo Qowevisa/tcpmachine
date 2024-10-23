@@ -12,8 +12,6 @@ import (
 	"git.qowevisa.me/Qowevisa/tcpmachine/tcpcommand"
 )
 
-type ServerLoggingLevel int
-
 const (
 	LogLevel_Nothing    = 0
 	LogLevel_Connection = 1 << iota
@@ -23,15 +21,6 @@ const (
 const (
 	LogLevel_ALL = LogLevel_Connection | LogLevel_Messages
 )
-
-type ServerConfiguration struct {
-	MessageEndRune   rune
-	MessageSplitRune rune
-	HandleClientFunc func(client net.Conn)
-	LogLevel         ServerLoggingLevel
-	//
-	ErrorResolver func(chan error)
-}
 
 func CreateHandleClientFuncFromCommands(bundle *tcpcommand.CommandBundle, conf ServerConfiguration) (func(client net.Conn), chan error) {
 	clientErrors := make(chan error, 16)
@@ -56,24 +45,6 @@ func CreateHandleClientFuncFromCommands(bundle *tcpcommand.CommandBundle, conf S
 			}
 		}
 	}, clientErrors
-}
-
-type Server struct {
-	addr                 string
-	PreHandlerClientFunc func(client net.Conn)
-	HandleClientFunc     func(client net.Conn)
-	// Use PostHandlerClientFunc in your HandleClientFunc if you
-	// use custom HandleClientFunc
-	PostHandlerClientFunc func(client net.Conn)
-	Exit                  chan bool
-	//
-	MessageEndRune   rune
-	MessageSplitRune rune
-	ErrorsChannel    chan error
-	ErrorResolver    func(chan error)
-	LogLevel         ServerLoggingLevel
-	//
-	Commands []tcpcommand.Command
 }
 
 func defaultHandleClientFunc(server *Server) func(net.Conn) {
