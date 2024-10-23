@@ -11,17 +11,6 @@ import (
 	"git.qowevisa.me/Qowevisa/tcpmachine/tcpcommand"
 )
 
-type ClientConfiguration struct {
-	MessageEndRune   rune
-	MessageSplitRune rune
-	//
-	Status        uint32
-	ErrorResolver func(chan error)
-	//
-	ServerHandlerFunc func(server net.Conn)
-	//
-}
-
 func GetDefaultConfig() *ClientConfiguration {
 	return &ClientConfiguration{
 		MessageEndRune:   '\n',
@@ -32,26 +21,6 @@ func GetDefaultConfig() *ClientConfiguration {
 			}
 		},
 	}
-}
-
-type ErrorResolverFunc func(errors chan error)
-
-type Client struct {
-	MessageEndRune   rune
-	MessageSplitRune rune
-	//
-	addr        string
-	Status      uint32
-	exit        chan bool
-	Server      net.Conn
-	IsConnected bool
-	//
-	ServerHandlerFunc func(server net.Conn)
-	//
-	ErrorsChannel chan error
-	ErrorResolver ErrorResolverFunc
-	//
-	Commands []tcpcommand.Command
 }
 
 func CreateClient(addr string, options ...ClientOption) *Client {
