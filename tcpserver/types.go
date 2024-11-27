@@ -3,7 +3,7 @@ package tcpserver
 import (
 	"net"
 
-	"git.qowevisa.me/Qowevisa/tcpmachine/tcpcommand"
+	"git.qowevisa.me/qowevisa/tcpmachine/tcpcommand"
 )
 
 type ServerLoggingLevel int

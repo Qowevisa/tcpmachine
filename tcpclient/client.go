@@ -8,7 +8,7 @@ import (
 	"net"
 	"strings"
 
-	"git.qowevisa.me/Qowevisa/tcpmachine/tcpcommand"
+	"git.qowevisa.me/qowevisa/tcpmachine/tcpcommand"
 )
 
 func GetDefaultConfig() *ClientConfiguration {

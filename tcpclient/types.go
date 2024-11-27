@@ -3,7 +3,7 @@ package tcpclient
 import (
 	"net"
 
-	"git.qowevisa.me/Qowevisa/tcpmachine/tcpcommand"
+	"git.qowevisa.me/qowevisa/tcpmachine/tcpcommand"
 )
 
 type ClientConfiguration struct {

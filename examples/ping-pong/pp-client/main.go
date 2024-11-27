@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"git.qowevisa.me/Qowevisa/tcpmachine/tcpclient"
+	"git.qowevisa.me/qowevisa/tcpmachine/tcpclient"
 )
 
 func main() {

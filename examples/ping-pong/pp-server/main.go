@@ -5,7 +5,7 @@ import (
 	"net"
 	"time"
 
-	"git.qowevisa.me/Qowevisa/tcpmachine/tcpserver"
+	"git.qowevisa.me/qowevisa/tcpmachine/tcpserver"
 )
 
 func main() {
